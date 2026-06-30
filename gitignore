@@ -1,0 +1,14 @@
+# Speaker notes (for internal use only)
+notes/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# Model checkpoints (too large for git, stored on Google Drive instead)
+*.pth
+*.pt
