@@ -53,10 +53,6 @@ See [`workshop_program.md`](workshop_program.md) for the full program with theor
 │   ├── Homework_OptionB_ConditionalConstellation.md
 │   ├── Homework_OptionC_FlowerGallery.ipynb
 │   └── Homework_OptionC_FlowerGallery.md
-├── speaker_notes/            (presenter only, gitignored, not in this repo)
-│   ├── Part1_SpeakerNotes.md
-│   ├── Part2_SpeakerNotes.md
-│   └── Part3_SpeakerNotes.md
 ├── workshop_program.md
 ├── LICENSE.md
 └── README.md
