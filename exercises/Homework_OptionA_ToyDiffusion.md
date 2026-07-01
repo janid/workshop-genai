@@ -3,75 +3,47 @@
 **Time:** up to 60 minutes
 **Requires:** nothing extra. Runs on CPU in under a minute. No GPU, no Drive, no API key.
 
----
+## Overview
 
-## Goal
+This homework rebuilds the full diffusion pipeline from Parts 1 and 2, but on
+2D points instead of images. A tiny MLP plays the role of the U-Net. Everything
+runs in seconds on CPU, so you can experiment freely.
 
-In the workshop you built a diffusion model for 16x16 FashionMNIST images.
-In this assignment you will build the exact same kind of model, but for
-simple 2D points instead of images. This removes all the complexity of
-convolutions and U-Nets, so you can focus purely on the diffusion math.
+The dataset, the forward process, the model, and the training loop are all
+already working. Your job is Step 5: the reverse diffusion step. After that,
+Step 7 asks you to try a different shape of your own choosing.
 
-You will train a tiny neural network to generate points that form the
-shape of two crescent moons, starting from pure random noise.
+## Steps
 
----
+1. **The Dataset.** Two crescent-shaped clusters of 2D points (`make_moons`).
+   Already working, just run it.
 
-## Step 1: Run the setup cells (5 min)
+2. **Forward Diffusion.** Same noise schedule and `q` function as Part 1,
+   adapted to 2D points. Already working. The visualization shows the moons
+   dissolving into noise as `t` increases.
 
-Open `Homework_OptionA_ToyDiffusion.ipynb` and run the first few cells.
-They generate the training data (a two-moons point cloud) and set up
-the same noise schedule you used in Part 1 of the workshop.
+3. **The Model.** A tiny MLP (a few thousand parameters) takes a noisy point
+   and a timestep, and predicts the noise. Already working.
 
----
+4. **Training.** 8000 steps, about 15-20 seconds on CPU. Already working.
 
-## Step 2: Complete the FILL_IN sections (20 min)
+5. **Reverse Diffusion (your turn).** Implement `reverse_step`, the same
+   formula as Part 2's `reverse_q`, just for 2D points. The function is
+   currently a placeholder that does nothing useful. A collapsed solution is
+   provided if you get stuck.
 
-There are two `FILL_IN` sections in this notebook, both formulas you
-already used in the workshop:
+6. **Generate and Visualize.** Samples from pure noise using your
+   `reverse_step`, and shows the points forming back into the moon shapes.
+   Already working, once Step 5 is fixed.
 
-1. The closed-form forward diffusion formula (same as Part 1, Exercise 2)
-2. The reverse diffusion formula (same as Part 2, Exercise 1)
+7. **Try It Yourself.** Swap the dataset for a different 2D shape
+   (`make_circles`, `make_blobs`, or your own point generator) and retrain.
 
-If you get stuck, click the hidden solution below each one.
+**Bonus (optional):** `make_moons` already gives you 2 class labels. Try
+adding simple class conditioning, the same idea as Part 3's classifier-free
+guidance, and generate each moon separately.
 
----
+## What to Submit
 
-## Step 3: Train and generate (10 min)
-
-Run the training cell. It should take less than a minute on CPU.
-Then run the sampling cell to generate new points from noise.
-You should see a scatter plot comparing the real two-moons shape
-to the points your model generated.
-
----
-
-## Step 4: Try a different shape (15 min)
-
-Change the dataset to a different shape. Two easy options:
-
-- Replace `make_moons` with `make_circles` (also from `sklearn.datasets`)
-- Write your own point generator, for example points along a heart shape
-  or a spiral (a short example is provided in the notebook as a comment)
-
-Retrain the model on your new shape and generate samples again.
-
----
-
-## Step 5: Write a short report (10 min)
-
-At the end of your notebook, answer:
-
-1. Did your model learn the two-moons shape well? What did the generated points look like?
-2. What shape did you try in Step 4? Did the model learn it as well as the moons?
-3. What happens if you reduce the number of training steps a lot (for example to 200)?
-   Try it and describe what you see.
-
----
-
-## Self-Check
-
-- [ ] Both FILL_IN sections are completed and the training cell runs without error
-- [ ] You generated samples and compared them visually to the real data
-- [ ] You tried a second shape
-- [ ] You wrote a short report
+The completed notebook, with the Step 5 fix applied, the Step 7 experiment
+run, and the Your Report cell at the end filled in.

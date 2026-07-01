@@ -2,7 +2,7 @@
 
 *Based on NVIDIA DLI materials "Generative AI with Diffusion Models"*
 *Adapted for Google Colab (T4 GPU) and local environments*
-*Format: 3 × 90 minutes | 2 presenters: Theory (30 min) + Practical (60 min)*
+*Format: 3 × 90 minutes | 2 presenters: Theory (30 min) + Demo (30 min) + Practice Time (30 min)*
 
 *Prerequisite: Workshop "Rapid Application Development using Large Language Models"*
 *or equivalent knowledge of deep learning and neural network architectures*
@@ -38,16 +38,36 @@
 - The noise schedule: beta values from 0.0001 to 0.02
 - Closed-form forward sampling: jumping directly to any timestep
 
-### Practical (60 min)
+### Demo (30 min)
 
-- Setting up the Colab environment: `torch`, `torchvision`, `einops`
+Instructor-led, presented end to end:
+
+- Setting up the environment: `torch`, `torchvision`, `matplotlib`
+  (pre-installed on Colab, local install cell provided at the top of the
+  notebook)
 - Loading and visualizing FashionMNIST (16x16 grayscale)
-- Building a U-Net from scratch: DownBlock, UpBlock, skip connections
-- Training a simple denoiser without time conditioning: observing its limitations
+- Building a U-Net from scratch: `DownBlock`, `UpBlock`, skip connections
+- Training a simple denoiser without time conditioning, observing its
+  limitations (fixed noise level, no time information)
 - Implementing the noise schedule (linear beta schedule)
-- Visualizing the forward diffusion process: from a clean image to pure noise
+- Visualizing the forward diffusion process: from a clean image to pure
+  noise, recursive vs. closed-form
 - Implementing closed-form forward sampling `q(x_0, t)`
 - First DDPM training run with time conditioning (2 epochs)
+
+### Practice Time (30 min)
+
+Students rebuild key pieces themselves, with hidden solutions for
+self-checking:
+
+1. **`UpBlock`** (7 min): rebuild the up-path block from memory, including
+   why the skip connection doubles the input channel count.
+2. **`add_noise`** (7 min): rebuild the noise-mixing function from memory.
+3. **Closed-form forward diffusion** (9 min): rebuild `q(x_0, t)` from
+   memory.
+4. **Put it together** (7 min): assemble a mini U-Net using their own
+   `UpBlock`, then run their own `q(x_0, t)` and visualize the noise
+   increasing with `t`.
 
 ---
 
@@ -82,17 +102,40 @@
 - Adding more convolution layers to each Up/Down block
 - Residual connections: stabilizing gradients in deep networks
 
-### Practical (60 min)
+### Demo (30 min)
 
+Instructor-led, presented end to end:
+
+- Recap from Part 1: dataset, noise schedule, basic U-Net classes
+  (same code, fresh kernel)
 - Implementing the reverse diffusion process: `reverse_q(x_t, t, e_t)`
 - Generating FashionMNIST samples from pure noise with the basic model
+  (3 epochs)
 - Improving the U-Net step by step:
-  - `GELUConvBlock`: GroupNorm + GELU (fixes checkerboard, better gradients)
-  - `RearrangePoolBlock`: einops-based pooling (no information loss)
-  - `SinusoidalPositionEmbedBlock`: richer time encoding
+  - `GELUConvBlock`: GroupNorm + GELU (fixes small-batch instability,
+    better gradients than ReLU)
+  - `RearrangePoolBlock`: einops-based pooling (no information loss,
+    unlike MaxPool)
+  - `SinusoidalPositionEmbedBlock`: richer time encoding via multiple
+    frequencies
   - `ResidualConvBlock`: deeper per-block networks with skip connections
-- Training the improved model (3 to 5 epochs)
-- Comparing generation quality: basic model vs. optimized model
+- Assembling the optimized U-Net (`UpBlockOpt` uses kernel=2, stride=2 to
+  remove the checkerboard artifact directly)
+- Training the optimized model (3 epochs) and comparing against the basic
+  model
+- Loading a 50-epoch pre-trained checkpoint from Google Drive for a
+  three-way quality comparison (architecture and training time, isolated)
+
+### Practice Time (30 min)
+
+1. **`reverse_q`** (7 min): rebuild the reverse diffusion step from memory.
+2. **`GELUConvBlock`** (7 min): rebuild Conv2d + GroupNorm + GELU from
+   memory.
+3. **`UpBlockOpt`** (9 min): build the optimized up-path block using their
+   own `GELUConvBlock`, including the kernel=2/stride=2 fix.
+4. **Put it together** (7 min): assemble a mini optimized U-Net using
+   their own `UpBlockOpt`, train for 1 epoch, and generate samples with
+   their own `reverse_q`.
 
 ---
 
@@ -127,17 +170,40 @@
 - The same Bernoulli mask dropout trick applies
 - The model architecture does not change, only the context vector changes
 
-### Practical (60 min)
+### Demo (30 min)
 
-- Implementing classifier-free guidance on FashionMNIST
-- Generating specific clothing categories (shirts, trousers, sneakers)
-- Visualizing the effect of different guidance weights on generation quality
-- Loading the flowers dataset from Google Drive *(placeholder cell)*
-- Loading pre-trained flowers model weights from Google Drive *(placeholder cell)*
-- Generating flower images with the pre-trained model (daisy, sunflower, rose)
-- Short training demo on the flowers dataset (5 to 10 epochs): watching the model learn
-- CLIP-conditioned diffusion: replacing class labels with CLIP text encodings
-- Generating flowers from free-form text: "A round white daisy", "A bright yellow sunflower"
+Instructor-led, presented end to end:
+
+- `UNetCFG`: the same optimized architecture from Part 2, plus context
+  embeddings. Transfer weights from the Part 2 50-epoch checkpoint, then
+  fine-tune with class conditioning (3 epochs)
+- Generating specific clothing categories at different guidance weights,
+  observing the effect of w from unconditional (w=0) to strongly
+  exaggerated (w=2.0)
+- CLIP: loading the model, comparing text encodings of flower descriptions
+  with a cosine similarity heatmap
+- Loading the pre-trained CLIP-conditioned flowers model from Google Drive
+  (trained before the workshop, 100 epochs, about 30 min on a T4, not run
+  live)
+- Generating flowers from free-form text: "A round white daisy", "A bright
+  yellow sunflower"
+- Open floor: inviting the room to call out their own text prompts and
+  generating live
+
+### Practice Time (30 min)
+
+This session's Practice Time combines ideas from all three parts:
+
+1. **CFG formula** (7 min): rebuild the classifier-free guidance
+   combination as a standalone function, from memory.
+2. **CLIP text encoding** (7 min): rebuild a tokenize + encode + normalize
+   function, from memory.
+3. **Negative prompt guidance** (9 min): a new synthesis task, not pure
+   recall. Push generation away from a negative text prompt instead of
+   the unconditional prediction, using the same formula shape as Task 1.
+4. **Put it together** (7 min): pick a positive/negative prompt pair,
+   generate with both standard CFG and negative-prompt guidance, and
+   compare side by side.
 
 ---
 
@@ -153,6 +219,22 @@ time permitting. Recommended selection:
   instead of pixel space (explains why it is faster and higher resolution than our pixel-space models)
 - **State of the art** *(slides6: 8-9)*: how diffusion + VAE + CLIP + GAN all combine in modern systems
 - **Trustworthy AI** *(slides6: 14-16)*: licenses, content credentials, responsible generation
+
+---
+
+## Optional Homework (end of workshop or take-home)
+
+Three self-contained options, up to 60 minutes each, no GPU required. See
+`homework/` for full instructions and starter notebooks.
+
+- **Option A: Toy 2D Diffusion** - rebuild the full pipeline on 2D points
+  instead of images.
+- **Option B: Conditional Constellation Generator** - 2D points again, but
+  combines all three parts: forward diffusion, reverse diffusion, and
+  classifier-free guidance.
+- **Option C: Flower Prompt Gallery and Curation** - lighter on code,
+  reuses the pretrained Part 3 flowers model, focused on prompt design
+  and write-up.
 
 ---
 
